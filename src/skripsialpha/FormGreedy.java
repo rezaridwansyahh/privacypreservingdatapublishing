@@ -19,17 +19,22 @@ import java.util.Date;
  *
  * @author rezar_4
  */
-public class FormScnu extends javax.swing.JFrame {
+public class FormGreedy extends javax.swing.JFrame {
 
     /**
      * Creates new form Form
      */
-    public FormScnu() {
+    public FormGreedy() {
         initComponents();
     }
 
     private void retrieve() {
-        DefaultTableModel dm = new FormUpdaterScnu().getData();
+        DefaultTableModel dm = new FormUpdaterGreedy().getData();
+        jTable1.setModel(dm);
+    }
+    
+    private void retrievedua() {
+        DefaultTableModel dm = new FormUpdaterGreedy().getDataSorted();
         jTable1.setModel(dm);
     }
 
@@ -152,27 +157,77 @@ public class FormScnu extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked
-         
-        int k=12;
-        int clus=0;
-        int jumlahbaris= jTable1.getRowCount();
-        for(int i=0;i<jumlahbaris;i++){
-            if((i+1)%k==0){
-                clus+=1;
-                // j =2 , j>2-2=0
-                for(int j=i;j>=(i-(k-1));j--){
-                    new FormUpdaterScnu().updatecluster(j+1, clus);
-                    //System.out.println(j);
-                    System.out.println((j+1) + " " + clus);
+        int banyakdata;
+        int k=4;
+        int anggota=0;
+        int c=1;
+        int i=0;
+        int pointer;
+        int nilaimax=0;
+        int id=0,age=0;
+        String work="",marital="",sex="";
+        FormUpdaterGreedy greedy = new FormUpdaterGreedy();
+
+        //System.out.println(id+" "+age+" "+work+" "+marital+" "+sex);
+        
+        while(greedy.selectSisa()>0){
+            id = Integer.parseInt(jTable1.getValueAt(0, 0).toString());
+            age = Integer.parseInt(jTable1.getValueAt(0, 1).toString());
+            work = jTable1.getValueAt(0, 2).toString();
+            marital = jTable1.getValueAt(0, 3).toString();
+            sex = jTable1.getValueAt(0, 4).toString();
+            greedy.insert(age,work,marital,sex,c);
+            greedy.delete(id);
+            for(int x=1;x<=k;x++){
+               banyakdata = new FormUpdaterGreedy().selectMaxData();
+               int nilai = 1;
+               int posisi=0;
+                for(int y=1;y<=banyakdata;y++){
+                    nilai=0;
+                    if(jTable1.getValueAt(y-1, 2).toString().equals(work)){
+                        nilai+=1;
+                    }
+                    if(jTable1.getValueAt(y-1, 3).toString().equals(marital)){
+                        nilai+=1;
+                    }
+                    if(jTable1.getValueAt(y-1, 4).toString().equals(sex)){
+                        nilai+=1;
+                    }
+                    if(nilai==3){
+                        nilaimax=3;
+                        posisi=y;
+                        break;
+                    }
+                    if(nilai>nilaimax){
+                        nilaimax=nilai;
+                        posisi=y;
+                    }
+                    System.out.println(nilaimax);
                 }
+                id = Integer.parseInt(jTable1.getValueAt(posisi, 0).toString());
+                age = Integer.parseInt(jTable1.getValueAt(posisi, 1).toString());
+                work = jTable1.getValueAt(posisi, 2).toString();
+                marital = jTable1.getValueAt(posisi, 3).toString();
+                sex = jTable1.getValueAt(posisi, 4).toString();
+                greedy.insert(age,work,marital,sex,c);
+                greedy.delete(id);
                 
             }
+            retrieve();
+            c++;
         }
-        new FormUpdaterScnu().updatesisacluster((new FormUpdaterScnu().selectMaxScnu()));
-        retrieve();
-        Date date = new Date();
-        // display time and date using toString()
-        System.out.println(date.toString());
+        
+       
+//        greedy.insert(age,work,marital,sex,c);
+//        greedy.delete(id);
+//        greedy.updateGreedy(1, age, work, marital, sex);
+        
+ 
+        //System.out.println(banyakdata);
+        
+        //System.out.println("posisi adalah "+ posisi);
+        System.out.println("selesai");
+        
     }//GEN-LAST:event_jButton2MouseClicked
 
     private void updateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateActionPerformed
@@ -181,47 +236,102 @@ public class FormScnu extends javax.swing.JFrame {
 
     private void updateMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_updateMouseClicked
         // TODO add your handling code here:
-        
-        int jumlahbari = new FormUpdaterScnu().selectMaxScnu();
-        String negfix = "xxx";
+        int jumlahbari = new FormUpdaterGreedy().selectMaxScnu();
+ //       String negfix = "xxx";
         String kelamin="gender";
-        
+        String statuskawin="";
         String umur;
+        String workclass;
         double pembagiumur;
-        double umuryangdibagi;
-        
+        double umuryangdibagi;       
         double banyakcluster;
         double informationLoss=0;
         double ilumur;
+
         for (int i = 0; i <= jumlahbari; i++) {
-            banyakcluster = new FormUpdaterScnu().cariBanyakDataDalamCluster(i);
+            banyakcluster = new FormUpdaterGreedy().cariBanyakDataDalamCluster(i);
             boolean flag = false;
             boolean flags= false;
             int ilka=0;
+            double ilwork=0;
+            double ilnik=0;
             double ilneg=0;
-            if (new FormUpdaterScnu().cariBanyakDataDalamCluster(i) > 0) {
-//                int maxawal = new FormUpdaterOka().selectMax(i);
-//                int minakhir = new FormUpdaterOka().selectMin(i);
-
-
-                for (int a = new FormUpdaterScnu().selectMin(i); a < new FormUpdaterScnu().selectMax(i); a++) {
-                    if (!jTable1.getValueAt(a-1, 1).toString().equals(jTable1.getValueAt(a, 1).toString())) {
+            if (new FormUpdaterGreedy().cariBanyakDataDalamCluster(i) > 0) {
+                for (int a = new FormUpdaterGreedy().selectMin(i); a < new FormUpdaterGreedy().selectMax(i); a++) {
+                    if (!jTable1.getValueAt(a-1, 4).toString().equals(jTable1.getValueAt(a, 4).toString())) {
                         flags = false;
                         break;
                     } else {
                         flags = true;
                     }
                 }
-                
                 if (flags==true){
-                    kelamin = jTable1.getValueAt(new FormUpdaterScnu().selectMin(i)-1, 1).toString();
+                    kelamin = jTable1.getValueAt(new FormUpdaterGreedy().selectMin(i)-1, 4).toString();
                     ilka=0;
                 }else if (flag==false){
-                    kelamin="kelamin";
+                    kelamin=" Kelamin";
                     ilka=1;
                 }
-                umur= jTable1.getValueAt(new FormUpdaterScnu().selectMin(i)-1, 2).toString() + " - " + jTable1.getValueAt(new FormUpdaterScnu().selectMax(i)-1, 2).toString();
-                for (int j = new FormUpdaterScnu().selectMin(i); j < new FormUpdaterScnu().selectMax(i); j++) {
+               umur= jTable1.getValueAt(new FormUpdaterGreedy().selectMin(i)-1, 1).toString() + " - " + jTable1.getValueAt(new FormUpdaterGreedy().selectMax(i)-1, 1).toString();               
+               
+               for (int j = new FormUpdaterGreedy().selectMin(i); j < new FormUpdaterGreedy().selectMax(i); j++) {
+                    if (!jTable1.getValueAt(j-1, 2).toString().equals(jTable1.getValueAt(j, 2).toString())) {
+                        flag = false;
+                        break;
+                    } else {
+                        flag = true;
+                        ilwork = 0;
+                    }
+                }
+                if(flag==false){
+                     for (int x = new FormUpdaterGreedy().selectMin(i); x <= new FormUpdaterGreedy().selectMax(i); x++) {
+                         if(" Federal-gov".equals(jTable1.getValueAt(x - 1, 2).toString()) || " Local-gov".equals(jTable1.getValueAt(x - 1, 2).toString())||" State-gov".equals(jTable1.getValueAt(x - 1, 2).toString()) ){
+                            new FormUpdaterGreedy().updateKerja(x, "Governmen");
+                        }else if(" Without-pay".equals(jTable1.getValueAt(x - 1, 2).toString()) || " Never-worked".equals(jTable1.getValueAt(x - 1, 2).toString())){
+                            new FormUpdaterGreedy().updateKerja(x, "Not_Work");
+                        }else if(" Private".equals(jTable1.getValueAt(x - 1, 2).toString()) || " Self-emp-not-inc".equals(jTable1.getValueAt(x - 1, 2).toString()) || " Self-emp-inc".equals(jTable1.getValueAt(x - 1, 2).toString())){
+                             new FormUpdaterGreedy().updateKerja(x, "Entrepreneur");
+                        }
+                     }
+                }
+                retrievedua();
+                for (int j = new FormUpdaterGreedy().selectMin(i); j < new FormUpdaterGreedy().selectMax(i); j++) {
+                    if (!jTable1.getValueAt(j-1, 2).toString().equals(jTable1.getValueAt(j, 2).toString())) {
+                        flag = false;
+                        break;
+                    } else {
+                        flag = true;
+                        
+                    }
+                }
+                if(flag==true){
+                    workclass = jTable1.getValueAt(new FormUpdaterGreedy().selectMin(i)-1,2).toString();
+                    ilwork = 0.5;
+                }else {
+                    workclass = "kerja";
+                    ilwork = 1;
+                }
+                
+                for (int j = new FormUpdaterGreedy().selectMin(i); j < new FormUpdaterGreedy().selectMax(i); j++) {
+                    if (!jTable1.getValueAt(j-1, 3).toString().equals(jTable1.getValueAt(j, 3).toString())) {
+                        flag = false;
+                        break;
+                    } else {
+                        flag = true;
+                        ilnik = 0;
+                    }
+                }
+                if(flag==false){
+                     for (int x = new FormUpdaterGreedy().selectMin(i); x <= new FormUpdaterGreedy().selectMax(i); x++) {
+                         if(" Married-civ-spouse".equals(jTable1.getValueAt(x - 1, 3).toString()) || " Married-AF-spouse".equals(jTable1.getValueAt(x - 1, 3).toString())||" Married-spouse-absent".equals(jTable1.getValueAt(x - 1, 3).toString()) ){
+                            new FormUpdaterGreedy().updateNegara(x, "Marital");
+                        }else if(" Divorced".equals(jTable1.getValueAt(x - 1, 3).toString()) || " Never-married".equals(jTable1.getValueAt(x - 1, 3).toString()) || " Separated".equals(jTable1.getValueAt(x - 1, 3).toString()) ||  " Widowed".equals(jTable1.getValueAt(x - 1, 3).toString())){
+                            new FormUpdaterGreedy().updateNegara(x, "Single");
+                        }
+                     }
+                }
+                retrievedua();
+                for (int j = new FormUpdaterGreedy().selectMin(i); j < new FormUpdaterGreedy().selectMax(i); j++) {
                     if (!jTable1.getValueAt(j-1, 3).toString().equals(jTable1.getValueAt(j, 3).toString())) {
                         flag = false;
                         break;
@@ -229,54 +339,29 @@ public class FormScnu extends javax.swing.JFrame {
                         flag = true;
                     }
                 }
-                if (flag == false) {
-                    for (int x = new FormUpdaterScnu().selectMin(i); x <= new FormUpdaterScnu().selectMax(i); x++) {
-                        if (" Peru".equals(jTable1.getValueAt(x - 1, 3).toString()) ||" Mexico".equals(jTable1.getValueAt(x - 1, 3).toString()) ||" Honduras".equals(jTable1.getValueAt(x - 1, 3).toString()) || " Haiti".equals(jTable1.getValueAt(x - 1, 3).toString()) || " Guatemala".equals(jTable1.getValueAt(x - 1, 3).toString()) || " El-Salavdor".equals(jTable1.getValueAt(x - 1, 3).toString()) || " Ecuador".equals(jTable1.getValueAt(x - 1, 3).toString()) || " Dominican-Republic".equals(jTable1.getValueAt(x - 1, 3).toString()) || " Columbia".equals(jTable1.getValueAt(x - 1, 3).toString()) || " Canada".equals(jTable1.getValueAt(x - 1, 3).toString()) || " United-States".equals(jTable1.getValueAt(x - 1, 3).toString()) || " Cuba".equals(jTable1.getValueAt(x - 1, 3).toString()) || " Mexico".equals(jTable1.getValueAt(x - 1, 3).toString()) || " Puerto-Rico".equals(jTable1.getValueAt(x - 1, 3).toString()) || " Jamaica".equals(jTable1.getValueAt(x - 1, 3).toString()) || "Jamaica".equals(jTable1.getValueAt(x - 1, 3).toString())) {
-                            new FormUpdaterScnu().updateNegara(x, "Amerika");
-                        } else if (" Vietnam".equals(jTable1.getValueAt(x - 1, 3).toString()) || " Thailand".equals(jTable1.getValueAt(x - 1, 3).toString()) || " Taiwan".equals(jTable1.getValueAt(x - 1, 3).toString()) || " Philippines".equals(jTable1.getValueAt(x - 1, 3).toString()) ||" Laos".equals(jTable1.getValueAt(x - 1, 3).toString()) ||" Japan".equals(jTable1.getValueAt(x - 1, 3).toString()) ||" Iran".equals(jTable1.getValueAt(x - 1, 3).toString()) || " India".equals(jTable1.getValueAt(x - 1, 3).toString()) || " Hong".equals(jTable1.getValueAt(x - 1, 3).toString()) || " China".equals(jTable1.getValueAt(x - 1, 3).toString()) || " India".equals(jTable1.getValueAt(x - 1, 3).toString()) ||" Camboodia".equals(jTable1.getValueAt(x - 1, 3).toString()) || " South".equals(jTable1.getValueAt(x - 1, 3).toString())) {
-                            new FormUpdaterScnu().updateNegara(x, "Asia");
-                        } else if(" Yugoslavia".equals(jTable1.getValueAt(x - 1, 3).toString()) || " Scotland".equals(jTable1.getValueAt(x - 1, 3).toString()) || " Italy".equals(jTable1.getValueAt(x - 1, 3).toString()) || " Portugal".equals(jTable1.getValueAt(x - 1, 3).toString()) || " Poland".equals(jTable1.getValueAt(x - 1, 3).toString()) || " Italy".equals(jTable1.getValueAt(x - 1, 3).toString()) ||" Ireland".equals(jTable1.getValueAt(x - 1, 3).toString()) ||" Hungary".equals(jTable1.getValueAt(x - 1, 3).toString()) || " Greece".equals(jTable1.getValueAt(x - 1, 3).toString()) || " Germanya".equals(jTable1.getValueAt(x - 1, 3).toString()) || " England".equals(jTable1.getValueAt(x - 1, 3).toString()) || " France".equals(jTable1.getValueAt(x - 1, 3).toString())){
-                            new FormUpdaterScnu().updateNegara(x, "Eropa");
-                        } else if(" Trinadad&Tobago".equals(jTable1.getValueAt(x - 1, 3).toString())){
-                            new FormUpdaterScnu().updateNegara(x, "Afrika");
-                        }
-                    }
-                    retrieve();
-                    for (int y = new FormUpdaterScnu().selectMin(i); y < new FormUpdaterScnu().selectMax(i); y++) {
-                        if (!jTable1.getValueAt(y-1, 3).toString().equals(jTable1.getValueAt(y, 3).toString())) {
-                            flag = false;
-                            break;
-                        } else {
-                            flag = true;
-                        }
-                    }
-                    if(flag==true){
-                        negfix=jTable1.getValueAt(new FormUpdaterScnu().selectMin(i)-1, 3).toString();
-                        ilneg=0.5;
-                    }else if(flag==false){
-                        negfix="dunia";
-                        ilneg=1;
-                    }
-                } else if (flag == true) {
-                    negfix = jTable1.getValueAt(new FormUpdaterScnu().selectMin(i), 3).toString();
-                    ilneg=0;
-                }
-                
-                umuryangdibagi=Integer.parseInt(jTable1.getValueAt(new FormUpdaterScnu().selectMax(i)-1, 2).toString())-Integer.parseInt(jTable1.getValueAt(new FormUpdaterScnu().selectMin(i)-1, 2).toString());
-                pembagiumur=new FormUpdaterScnu().selectMaxUmur()-new FormUpdaterScnu().selectMinUmur();
-                
-                informationLoss=new FormUpdaterScnu().cariBanyakDataDalamCluster(i)*((umuryangdibagi/pembagiumur)+ilka+ilneg)+informationLoss;
-                System.out.print(i);
-                System.out.print(" " + negfix + " ");
-                System.out.print(" " +kelamin + " ");
-                System.out.print(" "+ umur + " ");
-                System.out.print(" "+ informationLoss + " ");
-                System.out.println();
-                new FormUpdaterScnu().update(i, kelamin, umur, negfix);
+                if(flag==true){
+                    statuskawin = jTable1.getValueAt(new FormUpdaterGreedy().selectMin(i)-1,3).toString();
+                    ilnik = 0.5;
+                }else if(flag==false) {
+                    statuskawin = "Kawins";
+                    ilnik = 0;
+                }              
+                  umuryangdibagi=Integer.parseInt(jTable1.getValueAt(new FormUpdaterGreedy().selectMax(i)-1, 1).toString())-Integer.parseInt(jTable1.getValueAt(new FormUpdaterGreedy().selectMin(i)-1, 1).toString());
+                  pembagiumur=new FormUpdaterGreedy().selectMaxUmur()-new FormUpdaterGreedy().selectMinUmur();
+                  
+                  informationLoss=new FormUpdaterGreedy().cariBanyakDataDalamCluster(i)*((umuryangdibagi/pembagiumur)+ilka+ilnik+ilwork)+informationLoss;
+                  
+                  System.out.print(" "+i);
+                  System.out.print(kelamin);
+                  System.out.print(" "+workclass);
+                  System.out.print(" "+statuskawin);
+                  System.out.print(" "+umur);
+                  System.out.println(" "+informationLoss);
+                  
             }
             
         }
-        retrieve();
+        retrievedua();
         System.out.println("UDAH");
         Date date = new Date();
         // display time and date using toString()
@@ -285,9 +370,7 @@ public class FormScnu extends javax.swing.JFrame {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
-        Date date = new Date();
-        // display time and date using toString()
-        System.out.println(date.toString());
+        retrievedua();
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed

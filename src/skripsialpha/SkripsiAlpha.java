@@ -16,7 +16,7 @@ public class SkripsiAlpha {
      */
     public static void main(String[] args) {
         // TODO code application logic here
-        FormScnunas utama= new FormScnunas();
+        FormGreedy utama= new FormGreedy();
         utama.setVisible(true);
     }
     
